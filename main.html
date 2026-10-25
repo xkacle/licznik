@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style_main.css">
+    <title>HUB</title>
+</head>
+<body id="top">
+    <header>
+        <section class="header">
+            <h1>HUB</h1>
+        </section>
+        <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Otwórz menu" aria-expanded="false" aria-controls="site-menu">
+            <span></span>
+            <span></span>
+        </button>
+        <nav class="site-menu" id="site-menu" aria-label="Menu główne" hidden>
+            <a href="#top">Strona główna</a>
+            <a href="#welcome">O HUB-ie</a>
+            <a href="kacleFIT.html">kacleFIT</a>
+            <a href="licznik.html">Licznik treningu</a>
+            <a href="login.html">Mój profil</a>
+            <a href="#contact">Kontakt</a>
+        </nav>
+    </header>
+    <main id="welcome">
+        <h2 id="welcome-title">Witaj w HUB-ie. Wybierz, czego szukasz.</h2>
+    </main>
+    <footer id="contact">
+        <p>Autor: Kacper Gołąb</p>
+    </footer>
+    <script>
+        try {
+            const profile = JSON.parse(localStorage.getItem("hub-profile") || "null");
+            if (profile && profile.name) {
+                document.querySelector("#welcome-title").textContent = `Witaj, ${profile.name}. Wybierz, czego szukasz.`;
+            }
+        } catch {
+            // HUB działa także wtedy, gdy przeglądarka blokuje pamięć lokalną.
+        }
+
+        const menuButton = document.querySelector("#menu-toggle");
+        const siteMenu = document.querySelector("#site-menu");
+
+        function setMenuOpen(isOpen) {
+            menuButton.setAttribute("aria-expanded", String(isOpen));
+            menuButton.setAttribute("aria-label", isOpen ? "Zamknij menu" : "Otwórz menu");
+            siteMenu.hidden = !isOpen;
+        }
+
+        menuButton.addEventListener("click", () => {
+            setMenuOpen(menuButton.getAttribute("aria-expanded") !== "true");
+        });
+
+        document.addEventListener("click", (event) => {
+            if (!event.target.closest("header")) {
+                setMenuOpen(false);
+            }
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
+                setMenuOpen(false);
+                menuButton.focus();
+            }
+        });
+
+        siteMenu.addEventListener("click", (event) => {
+            if (event.target.closest("a")) {
+                setMenuOpen(false);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>REPS — Licznik serii i powtórzeń</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f5f5f7;
+    --panel:rgba(255,255,255,0.88);
+    --panel-2:#f5f5f7;
+    --yellow:#0071e3;
+    --yellow-dim:rgba(0,113,227,0.09);
+    --ink:#1d1d1f;
+    --ink-dim:#6e6e73;
+    --red:#d93025;
+    --line:rgba(29,29,31,0.10);
+    --display:-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+    --sans:-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+    --mono:-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{
+    background:radial-gradient(ellipse at 50% 0%, #fff 0%, var(--bg) 68%);
+    color:var(--ink);
+    font-family:var(--sans);
+    min-height:100svh;
+    padding-bottom:60px;
+  }
+  ::selection{background:var(--yellow);color:#111;}
+  :focus-visible{outline:2px solid var(--yellow);outline-offset:2px;}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+  input{font-family:inherit;color:inherit;background:none;border:none;}
+
+  .hazard{
+    height:8px;
+    background:repeating-linear-gradient(135deg, var(--yellow) 0 14px, #111 14px 28px);
+  }
+
+  header{
+    padding:22px 20px 10px;
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+  }
+  .logo{
+    font-family:var(--display);
+    font-size:30px;
+    letter-spacing:0.03em;
+  }
+  .logo span{color:var(--yellow);}
+  .greet{
+    font-size:12.5px;
+    color:var(--ink-dim);
+  }
+
+  .wrap{max-width:480px;margin:0 auto;padding:0 20px;}
+
+  /* ---------- EXERCISE PICKER ---------- */
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:20px;
+    margin-top:18px;
+  }
+  .label{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--ink-dim);
+    margin-bottom:10px;
+  }
+  .ex-input-row{
+    display:flex;
+    gap:10px;
+  }
+  #exerciseInput{
+    flex:1;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:14px 16px;
+    font-size:16px;
+    color:var(--ink);
+  }
+  #exerciseInput::placeholder{color:var(--ink-dim);}
+  .go-btn{
+    background:var(--yellow);
+    color:#111;
+    font-weight:700;
+    border-radius:10px;
+    padding:0 20px;
+    font-size:15px;
+  }
+  .chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:12px;
+  }
+  .chip{
+    font-family:var(--mono);
+    font-size:12.5px;
+    padding:8px 12px;
+    border-radius:20px;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    color:var(--ink-dim);
+  }
+  .chip.active{
+    background:var(--yellow-dim);
+    border-color:var(--yellow);
+    color:var(--yellow);
+  }
+
+  /* ---------- EXERCISE LIBRARY ---------- */
+  .cat-tabs{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:6px;
+  }
+  .cat-tab{
+    flex-shrink:0;
+    font-family:var(--mono);
+    font-size:12px;
+    padding:8px 13px;
+    border-radius:20px;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    color:var(--ink-dim);
+    white-space:nowrap;
+    transition:background .2s, border-color .2s, color .2s;
+  }
+  .cat-tab.active{
+    background:var(--yellow);
+    border-color:var(--yellow);
+    color:#111;
+    font-weight:700;
+  }
+  .ex-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:8px;
+    margin-top:12px;
+  }
+  .ex-btn{
+    text-align:left;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:12px 13px;
+    font-size:13.5px;
+    color:var(--ink);
+  }
+  .ex-btn.active{
+    background:var(--yellow-dim);
+    border-color:var(--yellow);
+    color:var(--yellow);
+  }
+  .ex-scheme{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--ink-dim);
+    margin-top:4px;
+  }
+  .ex-btn.active .ex-scheme{color:rgba(244,192,32,0.75);}
+  .divider-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:18px;
+    margin-bottom:4px;
+  }
+  .divider-row .line{flex:1;height:1px;background:var(--line);}
+  .divider-row span{
+    font-family:var(--mono);
+    font-size:10.5px;
+    color:var(--ink-dim);
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+  }
+
+  /* ---------- MODE TOGGLE + MY PLAN ---------- */
+  .mode-toggle{
+    display:flex;
+    gap:8px;
+    margin-bottom:16px;
+    background:var(--panel-2);
+    border-radius:12px;
+    padding:4px;
+  }
+  .mode-btn{
+    flex:1;
+    font-family:var(--mono);
+    font-size:12.5px;
+    padding:10px 8px;
+    border-radius:9px;
+    color:var(--ink-dim);
+    text-align:center;
+  }
+  .mode-btn.active{
+    background:var(--yellow);
+    color:#111;
+    font-weight:700;
+  }
+  .plan-ex-row{
+    display:flex;
+    gap:8px;
+    margin-bottom:8px;
+  }
+  .plan-ex-row .ex-btn{flex:1;}
+  .plan-ex-del{
+    width:42px;
+    flex-shrink:0;
+    border-radius:10px;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    color:var(--red);
+    font-size:15px;
+  }
+
+  /* ---------- CURRENT EXERCISE ---------- */
+  .current{
+    display:none;
+  }
+  .current.show{display:block;}
+
+  .ex-title{
+    font-family:var(--display);
+    font-size:34px;
+    letter-spacing:0.01em;
+    margin-top:22px;
+    line-height:1;
+  }
+  .set-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--yellow);
+    margin-top:8px;
+  }
+  .set-badge .n{
+    background:var(--yellow-dim);
+    padding:3px 10px;
+    border-radius:20px;
+    font-weight:700;
+  }
+
+  .stepper-row{
+    display:flex;
+    gap:14px;
+    margin-top:20px;
+  }
+  .stepper{
+    flex:1;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:16px;
+    text-align:center;
+  }
+  .stepper .label{margin-bottom:6px;}
+  .stepper-controls{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+  }
+  .stepper-controls button{
+    width:40px;height:40px;
+    border-radius:50%;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    font-size:20px;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--ink);
+  }
+  .stepper-controls button:active{background:var(--yellow-dim);}
+  .stepper-val{
+    font-family:var(--display);
+    font-size:40px;
+    min-width:60px;
+  }
+
+  .confirm-btn{
+    width:100%;
+    margin-top:20px;
+    background:var(--yellow);
+    color:#111;
+    font-family:var(--display);
+    font-size:22px;
+    letter-spacing:0.03em;
+    padding:18px;
+    border-radius:16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+  }
+  .confirm-btn:active{transform:scale(0.98);}
+
+  /* ---------- REST TIMER ---------- */
+  .timer-card{
+    display:none;
+    margin-top:18px;
+    text-align:center;
+    padding:24px 20px;
+  }
+  .timer-card.show{display:block;}
+  .timer-ring{
+    position:relative;
+    width:180px;height:180px;
+    margin:6px auto 14px;
+  }
+  .timer-ring svg{transform:rotate(-90deg);}
+  .timer-ring circle{
+    fill:none;
+    stroke-width:10;
+  }
+  .ring-bg{stroke:var(--panel-2);}
+  .ring-fg{
+    stroke:var(--yellow);
+    stroke-linecap:round;
+    transition:stroke-dashoffset 1s linear;
+  }
+  .timer-num{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:var(--mono);
+    font-size:36px;
+    font-weight:700;
+  }
+  .timer-presets{
+    display:flex;
+    gap:8px;
+    justify-content:center;
+    margin-bottom:14px;
+  }
+  .preset{
+    font-family:var(--mono);
+    font-size:12.5px;
+    padding:8px 14px;
+    border-radius:20px;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    color:var(--ink-dim);
+  }
+  .preset.active{background:var(--yellow-dim);border-color:var(--yellow);color:var(--yellow);}
+  .timer-actions{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+  }
+  .timer-actions button{
+    font-family:var(--mono);
+    font-size:13px;
+    padding:10px 18px;
+    border-radius:10px;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    color:var(--ink-dim);
+  }
+  .timer-actions button.skip{color:var(--yellow);border-color:var(--yellow);}
+
+  /* ---------- HISTORY ---------- */
+  .history-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:30px;
+    margin-bottom:12px;
+  }
+  .history-head h2{
+    font-family:var(--display);
+    font-size:22px;
+    letter-spacing:0.02em;
+  }
+  .day-select{
+    font-family:var(--mono);
+    font-size:12.5px;
+    color:var(--ink-dim);
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:8px 10px;
+  }
+  .day-select option{background:var(--panel);}
+
+  .log-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:14px 4px;
+    border-top:1px solid var(--line);
+    font-size:14.5px;
+  }
+  .log-item:last-child{border-bottom:1px solid var(--line);}
+  .log-ex{font-weight:600;}
+  .log-meta{
+    font-family:var(--mono);
+    font-size:12.5px;
+    color:var(--ink-dim);
+  }
+  .log-del{
+    color:var(--red);
+    font-size:12px;
+    font-family:var(--mono);
+    padding:4px 8px;
+  }
+  .empty-note{
+    color:var(--ink-dim);
+    font-size:13.5px;
+    padding:20px 4px;
+    text-align:center;
+  }
+  .totals{
+    display:flex;
+    gap:10px;
+    margin-top:14px;
+  }
+  .total-pill{
+    flex:1;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:12px;
+    text-align:center;
+  }
+  .total-pill .num{
+    font-family:var(--display);
+    font-size:24px;
+    color:var(--yellow);
+  }
+  .total-pill .lbl{
+    font-family:var(--mono);
+    font-size:10.5px;
+    color:var(--ink-dim);
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+  }
+
+  .toast{
+    position:fixed;
+    bottom:24px;left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:var(--yellow);
+    color:#111;
+    font-weight:600;
+    font-size:13.5px;
+    padding:12px 20px;
+    border-radius:30px;
+    opacity:0;
+    transition:opacity .3s ease, transform .3s ease;
+    pointer-events:none;
+    z-index:200;
+    white-space:nowrap;
+  }
+  .toast.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
+
+  .hazard{display:none;}
+  header.wrap{padding-top:26px;padding-bottom:18px;align-items:center;}
+  .logo{font-family:var(--display);font-size:24px;font-weight:700;letter-spacing:0;}
+  .logo span{color:var(--yellow);}
+  .greet{font-size:13px;}
+  .card,.stepper,.total-pill{
+    border-color:var(--line);
+    border-radius:8px;
+    box-shadow:0 8px 28px rgba(29,29,31,0.045);
+    backdrop-filter:blur(18px);
+  }
+  .card{padding:18px;margin-top:14px;}
+  .label,.chip,.cat-tab,.ex-scheme,.timer-actions button,.log-meta,.total-pill .lbl{
+    font-family:var(--sans);
+    letter-spacing:0;
+  }
+  .label{font-size:12px;font-weight:600;}
+  .mode-toggle{border-radius:8px;background:#ebebed;}
+  .mode-btn{font-family:var(--sans);border-radius:6px;}
+  .mode-btn.active{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,0.12);}
+  #exerciseInput,.ex-btn,.chip,.cat-tab,.preset,.timer-actions button,.day-select{
+    border-radius:8px;
+  }
+  #exerciseInput{background:#fff;color:var(--ink);}
+  .go-btn{border-radius:8px;background:var(--yellow);color:#fff;}
+  .chip,.cat-tab,.preset,.timer-actions button,.day-select{
+    background:#fff;color:var(--ink-dim);
+  }
+  .cat-tab.active,.preset.active{background:var(--yellow-dim);color:var(--yellow);border-color:rgba(0,113,227,0.25);}
+  .ex-btn{background:#fff;}
+  .ex-btn.active{background:var(--yellow-dim);color:var(--yellow);}
+  .ex-btn.active .ex-scheme{color:var(--yellow);}
+  .stepper{background:rgba(255,255,255,0.88);}
+  .stepper-controls button{background:#f0f0f2;color:var(--ink);}
+  .stepper-controls button:active{background:var(--yellow-dim);}
+  .stepper-val{font-family:var(--display);font-size:36px;font-weight:600;}
+  .ex-title,.history-head h2{font-family:var(--display);font-weight:650;letter-spacing:0;}
+  .set-badge,.timer-num,.log-meta{font-family:var(--sans);}
+  .set-badge .n{background:var(--yellow-dim);}
+  .confirm-btn{font-family:var(--sans);font-size:16px;font-weight:600;letter-spacing:0;background:var(--yellow);color:#fff;border-radius:8px;padding:16px;}
+  .timer-card{background:rgba(255,255,255,0.88);}
+  .ring-bg{stroke:#e8e8ed;}
+  .ring-fg{stroke:var(--yellow);}
+  .timer-presets{flex-wrap:wrap;}
+  .timer-actions button.skip{color:var(--yellow);border-color:rgba(0,113,227,0.3);}
+  .history-head h2{font-size:22px;}
+  .total-pill .num{font-family:var(--display);color:var(--yellow);}
+  .toast{background:#1d1d1f;color:#fff;border-radius:8px;}
+
+  @media(max-width:380px){
+    .wrap{padding-inline:14px;}
+    header.wrap{padding-inline:14px;}
+    .card{padding:14px;}
+    .stepper-row{gap:8px;}
+    .stepper{padding:12px 8px;}
+    .stepper-controls{gap:8px;}
+    .stepper-controls button{width:36px;height:36px;}
+    .stepper-val{min-width:44px;font-size:32px;}
+  }
+  .app-header{
+    position:sticky;top:0;z-index:100;width:100%;min-height:64px;
+    padding:0 max(22px, calc((100% - 1080px) / 2));
+    display:flex;align-items:center;justify-content:space-between;
+    border-bottom:1px solid rgba(29,29,31,0.07);
+    background:rgba(255,255,255,0.82);backdrop-filter:blur(20px);
+  }
+  .app-brand{color:var(--ink);font-size:19px;font-weight:700;text-decoration:none;}
+  .app-page-title{margin-right:auto;margin-left:18px;color:var(--ink-dim);font-size:14px;}
+  .app-menu-toggle{
+    width:40px;height:40px;padding:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+    border:1px solid var(--line);border-radius:50%;background:rgba(255,255,255,0.9);color:var(--ink);cursor:pointer;
+  }
+  .app-menu-toggle span{width:15px;height:1.5px;border-radius:2px;background:currentColor;transition:transform 180ms ease;}
+  .app-menu-toggle[aria-expanded="true"] span:first-child{transform:translateY(3.25px) rotate(45deg);}
+  .app-menu-toggle[aria-expanded="true"] span:last-child{transform:translateY(-3.25px) rotate(-45deg);}
+  .app-site-menu{
+    position:absolute;top:calc(100% + 8px);right:max(20px, calc((100% - 1080px) / 2));
+    width:min(260px, calc(100vw - 40px));padding:8px;display:grid;gap:2px;
+    border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,0.96);
+    box-shadow:0 16px 40px rgba(29,29,31,0.13);backdrop-filter:blur(24px);
+  }
+  .app-site-menu[hidden]{display:none;}
+  .app-site-menu a{padding:12px;border-radius:8px;color:var(--ink);font-size:14px;text-decoration:none;}
+  .app-site-menu a:hover,.app-site-menu a:focus-visible{outline:none;background:var(--bg);}
+  .app-site-menu a[aria-current="page"]{color:var(--yellow);}
+  @media(max-width:380px){.app-header{padding-inline:16px;}.app-page-title{margin-left:12px;font-size:13px;}}
+</style>
+</head>
+<body>
+<header class="app-header">
+  <a class="app-brand" href="main.html" aria-label="Wróć do HUB-a">HUB</a>
+  <span class="app-page-title">Licznik treningu</span>
+  <button class="app-menu-toggle" id="app-menu-toggle" type="button" aria-label="Otwórz menu" aria-expanded="false" aria-controls="app-site-menu">
+    <span></span><span></span>
+  </button>
+  <nav class="app-site-menu" id="app-site-menu" aria-label="Menu główne" hidden>
+    <a href="main.html">Strona główna HUB</a>
+    <a href="kacleFIT.html">kacleFIT</a>
+    <a href="licznik.html" aria-current="page">Licznik treningu</a>
+    <a href="login.html">Mój profil</a>
+  </nav>
+</header>
+
+<div class="hazard"></div>
+
+<header class="wrap" style="max-width:480px;padding-left:20px;padding-right:20px;">
+  <div class="logo">RE<span>PS</span></div>
+  <div class="greet" id="greeting">Cześć 💪</div>
+</header>
+
+<div class="wrap">
+
+  <div class="card">
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="modeLibraryBtn">Baza ćwiczeń</button>
+      <button class="mode-btn" id="modePlanBtn">Mój plan</button>
+    </div>
+
+    <div id="libraryView">
+      <div class="label">Wybierz partię</div>
+      <div class="cat-tabs" id="catTabs"></div>
+      <div class="ex-grid" id="exGrid"></div>
+
+      <div class="divider-row"><div class="line"></div><span>lub wpisz własne</span><div class="line"></div></div>
+      <div class="ex-input-row">
+        <input id="exerciseInput" type="text" placeholder="np. Hip thrust" autocomplete="off">
+        <button class="go-btn" id="startBtn">Start</button>
+      </div>
+      <div class="chips" id="recentChips"></div>
+    </div>
+
+    <div id="planView" style="display:none;">
+      <div class="label">Twoje dni treningowe</div>
+      <div class="cat-tabs" id="planDayTabs"></div>
+      <div class="ex-input-row">
+        <input id="newDayInput" type="text" placeholder="Nazwa dnia, np. Trening A" autocomplete="off">
+        <button class="go-btn" id="addDayBtn">+ Dzień</button>
+      </div>
+
+      <div id="planEmptyNote" class="empty-note" style="display:none;">Dodaj pierwszy dzień treningowy powyżej, żeby zacząć układać plan.</div>
+
+      <div id="planDayEditor" style="display:none;">
+        <div class="divider-row"><div class="line"></div><span id="planDayLabel">dzień</span><div class="line"></div></div>
+        <div id="planExercises"></div>
+
+        <div class="divider-row"><div class="line"></div><span>dodaj z bazy ćwiczeń</span><div class="line"></div></div>
+        <div class="cat-tabs" id="planLibTabs"></div>
+        <div class="ex-grid" id="planLibGrid"></div>
+
+        <div class="divider-row"><div class="line"></div><span>lub wpisz własne</span><div class="line"></div></div>
+        <div class="ex-input-row">
+          <input id="planExInput" type="text" placeholder="Nazwa ćwiczenia" autocomplete="off">
+        </div>
+        <div class="ex-input-row" style="margin-top:8px;">
+          <input id="planSchemeInput" type="text" placeholder="np. 3×10 (opcjonalnie)" autocomplete="off">
+          <button class="go-btn" id="addPlanExBtn">Dodaj</button>
+        </div>
+
+        <button class="log-del" id="deleteDayBtn" style="margin-top:16px;">Usuń ten dzień</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="current" id="currentBlock">
+    <div class="ex-title" id="exTitle">—</div>
+    <div class="set-badge">Seria <span class="n" id="setNum">1</span></div>
+
+    <div class="stepper-row">
+      <div class="stepper">
+        <div class="label">Powtórzenia</div>
+        <div class="stepper-controls">
+          <button id="repsMinus">−</button>
+          <div class="stepper-val" id="repsVal">10</div>
+          <button id="repsPlus">+</button>
+        </div>
+      </div>
+      <div class="stepper">
+        <div class="label">Ciężar (kg)</div>
+        <div class="stepper-controls">
+          <button id="weightMinus">−</button>
+          <div class="stepper-val" id="weightVal">20</div>
+          <button id="weightPlus">+</button>
+        </div>
+      </div>
+    </div>
+
+    <button class="confirm-btn" id="confirmBtn">✓ Zatwierdź serię</button>
+  </div>
+
+  <div class="card timer-card" id="timerCard">
+    <div class="label" style="text-align:center;">Odpoczynek</div>
+    <div class="timer-ring">
+      <svg width="180" height="180">
+        <circle class="ring-bg" cx="90" cy="90" r="80"></circle>
+        <circle class="ring-fg" id="ringFg" cx="90" cy="90" r="80"></circle>
+      </svg>
+      <div class="timer-num" id="timerNum">01:30</div>
+    </div>
+    <div class="timer-presets">
+      <button class="preset" data-s="60">60s</button>
+      <button class="preset active" data-s="90">90s</button>
+      <button class="preset" data-s="120">120s</button>
+      <button class="preset" data-s="180">180s</button>
+    </div>
+    <div class="timer-actions">
+      <button id="pauseBtn">Pauza</button>
+      <button id="resetTimerBtn">Restart</button>
+      <button class="skip" id="skipBtn">Pomiń →</button>
+    </div>
+  </div>
+
+  <div class="history-head">
+    <h2>Historia</h2>
+    <select class="day-select" id="daySelect"></select>
+  </div>
+  <div id="totalsBlock" class="totals" style="display:none;">
+    <div class="total-pill"><div class="num" id="totalSets">0</div><div class="lbl">Serie</div></div>
+    <div class="total-pill"><div class="num" id="totalReps">0</div><div class="lbl">Powtórzenia</div></div>
+    <div class="total-pill"><div class="num" id="totalVolume">0</div><div class="lbl">Objętość (kg)</div></div>
+  </div>
+  <div id="logList"></div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  const button = document.getElementById('app-menu-toggle');
+  const menu = document.getElementById('app-site-menu');
+  try{
+    const profile = JSON.parse(localStorage.getItem('hub-profile') || 'null');
+    if(profile && profile.name) document.getElementById('greeting').textContent = `Cześć, ${profile.name} 💪`;
+  }catch(e){ /* Personalization is optional. */ }
+  function setMenuOpen(isOpen){
+    button.setAttribute('aria-expanded', String(isOpen));
+    button.setAttribute('aria-label', isOpen ? 'Zamknij menu' : 'Otwórz menu');
+    menu.hidden = !isOpen;
+  }
+  button.addEventListener('click', () => setMenuOpen(button.getAttribute('aria-expanded') !== 'true'));
+  document.addEventListener('click', event => {
+    if(!event.target.closest('.app-header')) setMenuOpen(false);
+  });
+  document.addEventListener('keydown', event => {
+    if(event.key === 'Escape'){
+      setMenuOpen(false);
+      button.focus();
+    }
+  });
+})();
+
+(function(){
+  const $ = (id) => document.getElementById(id);
+  const toastEl = $('toast');
+  function toast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    setTimeout(()=>toastEl.classList.remove('show'), 1800);
+  }
+
+  // ---------- LOCAL STORAGE HELPERS (works after publishing, per-browser) ----------
+  const localStore = {
+    async get(key){
+      try{
+        const v = localStorage.getItem(key);
+        return v === null ? null : { key, value: v };
+      }catch(e){ return null; }
+    },
+    async set(key, value){
+      try{
+        localStorage.setItem(key, value);
+        return { key, value };
+      }catch(e){ console.error('Błąd zapisu localStorage', e); return null; }
+    }
+  };
+
+  function todayKey(){
+    const d = new Date();
+    return d.toISOString().slice(0,10);
+  }
+
+  const EXERCISE_LIBRARY = {
+    'Klatka': [
+      {n:'Wyciskanie sztangi na ławce płaskiej'},{n:'Wyciskanie hantli na skosie dodatnim'},
+      {n:'Rozpiętki na hantlach'},{n:'Rozpiętki na bramie'},{n:'Pompki'},
+      {n:'Wyciskanie na maszynie'},{n:'Brama (dipy)'}
+    ],
+    'Plecy': [
+      {n:'Martwy ciąg'},{n:'Podciąganie na drążku'},{n:'Wiosłowanie sztangą'},
+      {n:'Wiosłowanie hantlą'},{n:'Wiosłowanie na maszynie'},{n:'Wiosłowanie siedząc na wyciągu'},
+      {n:'Ściąganie drążka do klatki'},{n:'Face pull'}
+    ],
+    'Nogi': [
+      {n:'Przysiad ze sztangą'},{n:'Wykroki'},{n:'Prasa nożna / suwnica'},
+      {n:'Wyprosty nóg'},{n:'Uginanie nóg leżąc'},{n:'Martwy ciąg rumuński'},{n:'Wspięcia na palce (łydki)'}
+    ],
+    'Barki': [
+      {n:'Wyciskanie żołnierskie'},{n:'Wyciskanie hantli siedząc'},{n:'Unoszenie hantli bokiem'},
+      {n:'Wznosy w opadzie'},{n:'Arnold press'},{n:'Shrugi'}
+    ],
+    'Ramiona': [
+      {n:'Uginanie sztangi na biceps'},{n:'Uginanie hantli z supinacją'},{n:'Uginanie młotkowe'},
+      {n:'Prostowanie ramion na wyciągu'},{n:'Francuskie wyciskanie'},{n:'Modlitewnik'}
+    ],
+    'Brzuch': [
+      {n:'Plank'},{n:'Brzuszki'},{n:'Unoszenie nóg w zwisie'},{n:'Skręty rosyjskie'},{n:'Deska boczna'}
+    ]
+  };
+  let activeCategory = 'Klatka';
+  let viewMode = 'library'; // 'library' | 'plan'
+  let customPlan = {}; // { 'Nazwa dnia': [{n, s}, ...] }
+  let activePlanDay = null;
+
+  let currentExercise = null;
+  let setCounter = {}; // per exercise per day, in-memory for this session's numbering
+  let reps = 10;
+  let weight = 20;
+  let recentExercises = [];
+  let timerInterval = null;
+  let timerSeconds = 90;
+  let timerTotal = 90;
+  let timerPaused = false;
+
+  const RING_R = 80;
+  const RING_CIRC = 2 * Math.PI * RING_R;
+  $('ringFg').style.strokeDasharray = RING_CIRC;
+  $('ringFg').style.strokeDashoffset = 0;
+
+  // ---------- STORAGE HELPERS ----------
+  async function loadRecentExercises(){
+    try{
+      const res = await localStore.get('exercises-list');
+      recentExercises = res ? JSON.parse(res.value) : [];
+    }catch(e){
+      recentExercises = [];
+    }
+    renderChips();
+  }
+
+  async function saveRecentExercise(name){
+    if(!name) return;
+    recentExercises = [name, ...recentExercises.filter(e => e.toLowerCase() !== name.toLowerCase())].slice(0,8);
+    try{
+      await localStore.set('exercises-list', JSON.stringify(recentExercises));
+    }catch(e){ console.error('Nie udało się zapisać listy ćwiczeń', e); }
+    renderChips();
+  }
+
+  function renderCategoryTabs(){
+    const wrap = $('catTabs');
+    wrap.innerHTML = '';
+    Object.keys(EXERCISE_LIBRARY).forEach(cat => {
+      const b = document.createElement('button');
+      b.className = 'cat-tab' + (cat === activeCategory ? ' active' : '');
+      b.textContent = cat;
+      b.onclick = () => { activeCategory = cat; renderCategoryTabs(); renderExerciseGrid(); saveSessionState(); };
+      wrap.appendChild(b);
+    });
+  }
+
+  function renderExerciseGrid(){
+    const wrap = $('exGrid');
+    wrap.innerHTML = '';
+    const items = EXERCISE_LIBRARY[activeCategory];
+    if(!items || items.length === 0){
+      wrap.innerHTML = '<div class="empty-note" style="grid-column:1/-1;">Dzień wolny — odpoczywaj 😌</div>';
+      return;
+    }
+    items.forEach(item => {
+      const b = document.createElement('button');
+      b.className = 'ex-btn' + (currentExercise === item.n ? ' active' : '');
+      b.innerHTML = item.s ? `${item.n}<div class="ex-scheme">${item.s}</div>` : item.n;
+      b.onclick = () => selectExercise(item.n, item.s);
+      wrap.appendChild(b);
+    });
+  }
+
+  function renderChips(){
+    const wrap = $('recentChips');
+    wrap.innerHTML = '';
+    recentExercises.forEach(name => {
+      const c = document.createElement('button');
+      c.className = 'chip' + (currentExercise === name ? ' active' : '');
+      c.textContent = name;
+      c.onclick = () => selectExercise(name);
+      wrap.appendChild(c);
+    });
+  }
+
+  // ---------- MODE TOGGLE (BAZA vs MÓJ PLAN) ----------
+  function setViewMode(mode){
+    viewMode = mode;
+    $('modeLibraryBtn').classList.toggle('active', mode === 'library');
+    $('modePlanBtn').classList.toggle('active', mode === 'plan');
+    $('libraryView').style.display = mode === 'library' ? 'block' : 'none';
+    $('planView').style.display = mode === 'plan' ? 'block' : 'none';
+  }
+  $('modeLibraryBtn').onclick = () => setViewMode('library');
+  $('modePlanBtn').onclick = () => setViewMode('plan');
+
+  // ---------- CUSTOM PLAN ----------
+  async function loadCustomPlan(){
+    try{
+      const res = await localStore.get('custom-plan');
+      customPlan = res ? JSON.parse(res.value) : {};
+    }catch(e){ customPlan = {}; }
+  }
+
+  async function saveCustomPlan(){
+    try{
+      await localStore.set('custom-plan', JSON.stringify(customPlan));
+    }catch(e){ console.error('Nie udało się zapisać planu', e); }
+  }
+
+  function renderPlanDayTabs(){
+    const wrap = $('planDayTabs');
+    wrap.innerHTML = '';
+    const days = Object.keys(customPlan);
+    days.forEach(day => {
+      const b = document.createElement('button');
+      b.className = 'cat-tab' + (day === activePlanDay ? ' active' : '');
+      b.textContent = day;
+      b.onclick = () => { activePlanDay = day; renderPlanDayTabs(); renderPlanEditor(); };
+      wrap.appendChild(b);
+    });
+
+    if(days.length === 0){
+      activePlanDay = null;
+    }else if(!activePlanDay || !customPlan[activePlanDay]){
+      activePlanDay = days[0];
+    }
+    renderPlanEditor();
+  }
+
+  function renderPlanEditor(){
+    const empty = $('planEmptyNote');
+    const editor = $('planDayEditor');
+    if(!activePlanDay){
+      empty.style.display = 'block';
+      editor.style.display = 'none';
+      return;
+    }
+    empty.style.display = 'none';
+    editor.style.display = 'block';
+    $('planDayLabel').textContent = activePlanDay;
+
+    const listEl = $('planExercises');
+    listEl.innerHTML = '';
+    const items = customPlan[activePlanDay] || [];
+    if(items.length === 0){
+      listEl.innerHTML = '<div class="empty-note">Ten dzień jest jeszcze pusty — dodaj pierwsze ćwiczenie poniżej.</div>';
+    }
+    items.forEach((item, idx) => {
+      const row = document.createElement('div');
+      row.className = 'plan-ex-row';
+      const btn = document.createElement('button');
+      btn.className = 'ex-btn' + (currentExercise === item.n ? ' active' : '');
+      btn.innerHTML = item.s ? `${item.n}<div class="ex-scheme">${item.s}</div>` : item.n;
+      btn.onclick = () => selectExercise(item.n, item.s);
+      const del = document.createElement('button');
+      del.className = 'plan-ex-del';
+      del.textContent = '✕';
+      del.onclick = () => {
+        customPlan[activePlanDay].splice(idx, 1);
+        saveCustomPlan();
+        renderPlanEditor();
+      };
+      row.appendChild(btn);
+      row.appendChild(del);
+      listEl.appendChild(row);
+    });
+  }
+
+  $('addDayBtn').onclick = () => {
+    const name = $('newDayInput').value.trim();
+    if(!name){ toast('Wpisz nazwę dnia'); return; }
+    if(!customPlan[name]) customPlan[name] = [];
+    activePlanDay = name;
+    $('newDayInput').value = '';
+    saveCustomPlan();
+    renderPlanDayTabs();
+  };
+  $('newDayInput').addEventListener('keydown', (e) => {
+    if(e.key === 'Enter') $('addDayBtn').click();
+  });
+
+  $('addPlanExBtn').onclick = () => {
+    if(!activePlanDay){ toast('Najpierw dodaj dzień'); return; }
+    const name = $('planExInput').value.trim();
+    const scheme = $('planSchemeInput').value.trim();
+    if(!name){ toast('Wpisz nazwę ćwiczenia'); return; }
+    customPlan[activePlanDay].push({ n: name, s: scheme || undefined });
+    $('planExInput').value = '';
+    $('planSchemeInput').value = '';
+    saveCustomPlan();
+    renderPlanEditor();
+    toast('Dodano do planu');
+  };
+  $('planExInput').addEventListener('keydown', (e) => {
+    if(e.key === 'Enter') $('addPlanExBtn').click();
+  });
+
+  $('deleteDayBtn').onclick = () => {
+    if(!activePlanDay) return;
+    delete customPlan[activePlanDay];
+    activePlanDay = null;
+    saveCustomPlan();
+    renderPlanDayTabs();
+    toast('Dzień usunięty');
+  };
+
+  async function loadDayLog(dateKey){
+    try{
+      const res = await localStore.get('log:' + dateKey);
+      return res ? JSON.parse(res.value) : [];
+    }catch(e){
+      return [];
+    }
+  }
+
+  async function saveDayLog(dateKey, log){
+    try{
+      await localStore.set('log:' + dateKey, JSON.stringify(log));
+    }catch(e){
+      console.error('Nie udało się zapisać treningu', e);
+      toast('Błąd zapisu — spróbuj ponownie');
+    }
+  }
+
+  async function loadDaysIndex(){
+    try{
+      const res = await localStore.get('days-index');
+      return res ? JSON.parse(res.value) : [];
+    }catch(e){ return []; }
+  }
+
+  async function addDayToIndex(dateKey){
+    const days = await loadDaysIndex();
+    if(!days.includes(dateKey)){
+      days.unshift(dateKey);
+      try{
+        await localStore.set('days-index', JSON.stringify(days));
+      }catch(e){ /* ignore */ }
+    }
+  }
+
+  // ---------- REMEMBER LAST WORKOUT SELECTION ----------
+  async function saveSessionState(){
+    try{
+      await localStore.set('session-state', JSON.stringify({
+        activeCategory, currentExercise, reps, weight
+      }), false);
+    }catch(e){ /* ignore, not critical */ }
+  }
+
+  async function loadSessionState(){
+    try{
+      const res = await localStore.get('session-state');
+      if(!res) return;
+      const s = JSON.parse(res.value);
+      if(s.activeCategory && EXERCISE_LIBRARY[s.activeCategory]) activeCategory = s.activeCategory;
+      if(typeof s.reps === 'number') reps = s.reps;
+      if(typeof s.weight === 'number') weight = s.weight;
+      $('repsVal').textContent = reps;
+      $('weightVal').textContent = weight;
+      if(s.currentExercise){
+        currentExercise = s.currentExercise;
+        $('exTitle').textContent = currentExercise;
+        $('currentBlock').classList.add('show');
+      }
+    }catch(e){ /* ignore, not critical */ }
+  }
+
+  // ---------- EXERCISE SELECTION ----------
+  function selectExercise(name, scheme){
+    currentExercise = name;
+    $('exTitle').textContent = name;
+    $('currentBlock').classList.add('show');
+    $('exerciseInput').value = '';
+    if(scheme){
+      const m = scheme.match(/(\d+)[–-](\d+)/);
+      if(m){
+        const avg = Math.round((parseInt(m[1],10) + parseInt(m[2],10)) / 2);
+        reps = avg;
+        $('repsVal').textContent = reps;
+      }
+    }
+    renderChips();
+    renderExerciseGrid();
+    if(activePlanDay) renderPlanEditor();
+    refreshSetNumber();
+    saveSessionState();
+  }
+
+  async function refreshSetNumber(){
+    const log = await loadDayLog(todayKey());
+    const count = log.filter(l => l.exercise === currentExercise).length;
+    $('setNum').textContent = count + 1;
+  }
+
+  $('startBtn').onclick = () => {
+    const val = $('exerciseInput').value.trim();
+    if(!val){ toast('Wpisz nazwę ćwiczenia'); return; }
+    saveRecentExercise(val);
+    selectExercise(val);
+  };
+  $('exerciseInput').addEventListener('keydown', (e) => {
+    if(e.key === 'Enter') $('startBtn').click();
+  });
+
+  // ---------- STEPPERS ----------
+  $('repsPlus').onclick = () => { reps = Math.min(reps+1, 999); $('repsVal').textContent = reps; saveSessionState(); };
+  $('repsMinus').onclick = () => { reps = Math.max(reps-1, 0); $('repsVal').textContent = reps; saveSessionState(); };
+  $('weightPlus').onclick = () => { weight = Math.round((weight+2.5)*10)/10; $('weightVal').textContent = weight; saveSessionState(); };
+  $('weightMinus').onclick = () => { weight = Math.max(Math.round((weight-2.5)*10)/10, 0); $('weightVal').textContent = weight; saveSessionState(); };
+
+  // ---------- CONFIRM SET ----------
+  $('confirmBtn').onclick = async () => {
+    if(!currentExercise){ toast('Najpierw wybierz ćwiczenie'); return; }
+    const dateKey = todayKey();
+    const log = await loadDayLog(dateKey);
+    log.push({
+      id: Date.now(),
+      exercise: currentExercise,
+      reps: reps,
+      weight: weight,
+      time: new Date().toLocaleTimeString('pl-PL', {hour:'2-digit', minute:'2-digit'})
+    });
+    await saveDayLog(dateKey, log);
+    await addDayToIndex(dateKey);
+    toast('Seria zapisana ✓');
+    await refreshSetNumber();
+    await renderHistoryForDate(dateKey);
+    await populateDaySelect(dateKey);
+    startTimer(timerTotal);
+  };
+
+  // ---------- REST TIMER ----------
+  function updateRing(){
+    const frac = timerSeconds / timerTotal;
+    $('ringFg').style.strokeDashoffset = RING_CIRC * (1-frac);
+    const m = Math.floor(timerSeconds/60).toString().padStart(2,'0');
+    const s = (timerSeconds%60).toString().padStart(2,'0');
+    $('timerNum').textContent = m+':'+s;
+  }
+
+  function startTimer(total){
+    clearInterval(timerInterval);
+    timerTotal = total;
+    timerSeconds = total;
+    timerPaused = false;
+    $('pauseBtn').textContent = 'Pauza';
+    $('timerCard').classList.add('show');
+    updateRing();
+    timerInterval = setInterval(() => {
+      if(timerPaused) return;
+      timerSeconds--;
+      if(timerSeconds <= 0){
+        clearInterval(timerInterval);
+        timerSeconds = 0;
+        updateRing();
+        toast('Koniec odpoczynku — do dzieła!');
+        if(navigator.vibrate) navigator.vibrate([200,100,200]);
+        return;
+      }
+      updateRing();
+    }, 1000);
+  }
+
+  document.querySelectorAll('.preset').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('.preset').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      startTimer(parseInt(btn.dataset.s, 10));
+    };
+  });
+
+  $('pauseBtn').onclick = () => {
+    timerPaused = !timerPaused;
+    $('pauseBtn').textContent = timerPaused ? 'Wznów' : 'Pauza';
+  };
+  $('resetTimerBtn').onclick = () => startTimer(timerTotal);
+  $('skipBtn').onclick = () => {
+    clearInterval(timerInterval);
+    $('timerCard').classList.remove('show');
+  };
+
+  // ---------- HISTORY ----------
+  async function populateDaySelect(selectedKey){
+    const days = await loadDaysIndex();
+    const sel = $('daySelect');
+    sel.innerHTML = '';
+    if(days.length === 0){
+      const opt = document.createElement('option');
+      opt.textContent = 'Brak danych';
+      sel.appendChild(opt);
+      return;
+    }
+    days.forEach(d => {
+      const opt = document.createElement('option');
+      opt.value = d;
+      const label = d === todayKey() ? 'Dziś — ' + d : d;
+      opt.textContent = label;
+      if(d === selectedKey) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
+
+  async function renderHistoryForDate(dateKey){
+    const log = await loadDayLog(dateKey);
+    const listEl = $('logList');
+    const totalsEl = $('totalsBlock');
+    listEl.innerHTML = '';
+    if(log.length === 0){
+      listEl.innerHTML = '<div class="empty-note">Brak zapisanych serii tego dnia.</div>';
+      totalsEl.style.display = 'none';
+      return;
+    }
+    totalsEl.style.display = 'flex';
+    let totalReps = 0, totalVolume = 0;
+    log.slice().reverse().forEach(entry => {
+      totalReps += entry.reps;
+      totalVolume += entry.reps * entry.weight;
+      const row = document.createElement('div');
+      row.className = 'log-item';
+      row.innerHTML = `
+        <div>
+          <div class="log-ex">${escapeHtml(entry.exercise)}</div>
+          <div class="log-meta">${entry.reps} powt. × ${entry.weight} kg — ${entry.time}</div>
+        </div>
+        <button class="log-del" data-id="${entry.id}">Usuń</button>
+      `;
+      listEl.appendChild(row);
+    });
+    $('totalSets').textContent = log.length;
+    $('totalReps').textContent = totalReps;
+    $('totalVolume').textContent = totalVolume;
+
+    listEl.querySelectorAll('.log-del').forEach(btn => {
+      btn.onclick = async () => {
+        const id = parseInt(btn.dataset.id, 10);
+        const updated = log.filter(e => e.id !== id);
+        await saveDayLog(dateKey, updated);
+        renderHistoryForDate(dateKey);
+        if(currentExercise) refreshSetNumber();
+      };
+    });
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  $('daySelect').addEventListener('change', (e) => {
+    renderHistoryForDate(e.target.value);
+  });
+
+  // ---------- INIT ----------
+  async function init(){
+    await loadSessionState();
+    renderCategoryTabs();
+    renderExerciseGrid();
+    await loadCustomPlan();
+    renderPlanDayTabs();
+    await loadRecentExercises();
+    const today = todayKey();
+    await addDayToIndex(today);
+    if(currentExercise) await refreshSetNumber();
+    await populateDaySelect(today);
+    await renderHistoryForDate(today);
+    updateRing();
+  }
+  init();
+})();
+</script>
+
+</body>
+</html>

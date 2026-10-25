@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>kaclefit - Smart Calorie & Fitness Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #f5f5f5;
+            color: #1a1a1a;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        header {
+            background: #ffffff;
+            padding: 40px 20px;
+            text-align: center;
+            border-bottom: none;
+            margin-top: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            color: #000000;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            color: #666666;
+            font-weight: 400;
+            letter-spacing: -0.2px;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
+            padding: 80px 20px;
+            text-align: center;
+            min-height: 70vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hero-section h2 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            letter-spacing: -1.5px;
+            color: #000000;
+        }
+
+        .hero-section p {
+            font-size: 1.3rem;
+            color: #666666;
+            max-width: 600px;
+            margin: 0 auto 40px;
+            line-height: 1.7;
+            font-weight: 400;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 16px 40px;
+            background: #000000;
+            color: white;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            text-decoration: none;
+            border: none;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .features-showcase {
+            max-width: 1000px;
+            margin: -50px auto 0;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .feature-box {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .feature-box h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #000000;
+        }
+
+        .feature-box p {
+            font-size: 0.95rem;
+            color: #666666;
+            line-height: 1.6;
+        }
+
+        menu {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 56px;
+            height: 56px;
+            background: #000000;
+            cursor: pointer;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            z-index: 999;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        menu:hover {
+            transform: scale(1.08) translateY(-4px);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+        }
+
+        menu h1 {
+            font-size: 1.4rem;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            color: white;
+            margin: 0;
+        }
+
+        menu:hover h1 {
+            transform: rotate(90deg);
+        }
+
+        menu section {
+            position: fixed;
+            top: 90px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-12px) scale(0.95);
+            transition: all 0.35s cubic-bezier(0.23, 1, 0.320, 1);
+            z-index: 998;
+        }
+
+        menu section.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        menu section div {
+            padding: 14px 18px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.23, 1, 0.320, 1);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            position: relative;
+            min-width: 130px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        menu section div::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: #000000;
+            border-radius: 12px 0 0 12px;
+            transform: scaleY(0);
+            transform-origin: center;
+            transition: transform 0.25s cubic-bezier(0.23, 1, 0.320, 1);
+        }
+
+        menu section div:hover {
+            background: #f5f5f5;
+            transform: translateX(6px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        menu section div:hover::before {
+            transform: scaleY(1);
+        }
+
+        menu section div h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.25s ease;
+            color: #1a1a1a;
+            margin: 0;
+        }
+
+        menu section div:hover h3 {
+            color: #000000;
+        }
+
+        main {
+            max-width: 600px;
+            margin: 20px auto 40px;
+            padding: 32px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        aside {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        aside.show {
+            display: block;
+            opacity: 1;
+        }
+
+        .offers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .offer-card {
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 20px;
+            padding: 28px;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .offer-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(0, 0, 0, 0.05), transparent);
+            transition: all 0.6s ease;
+        }
+
+        .offer-card:hover {
+            border-color: rgba(0, 0, 0, 0.2);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+            transform: translateY(-6px);
+        }
+
+        .offer-card:hover::before {
+            top: 50%;
+            right: 50%;
+        }
+
+        .offer-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 12px;
+            font-weight: 700;
+            color: #000000;
+            position: relative;
+            z-index: 1;
+            letter-spacing: -0.3px;
+        }
+
+        .offer-card .price {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #000000;
+            margin: 15px 0;
+            position: relative;
+            z-index: 1;
+            letter-spacing: -1px;
+        }
+
+        .offer-card .description {
+            font-size: 0.95rem;
+            color: #777777;
+            margin-bottom: 25px;
+            line-height: 1.5;
+            position: relative;
+            z-index: 1;
+            font-weight: 500;
+        }
+
+        .offer-card .features {
+            text-align: left;
+            font-size: 0.9rem;
+            color: #555555;
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .offer-card .features li {
+            margin: 12px 0;
+            list-style: none;
+            padding-left: 28px;
+            position: relative;
+            font-weight: 500;
+            color: #333333;
+            line-height: 1.6;
+        }
+
+        .offer-card .features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+            color: #000000;
+            font-size: 1.2rem;
+        }
+
+        .offer-card .offer-button {
+            width: 100%;
+            padding: 14px 16px;
+            background: #000000;
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 1;
+            letter-spacing: 0.2px;
+        }
+
+        .offer-card .offer-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .offer-card .offer-button:active {
+            transform: translateY(0);
+        }
+
+        main p:first-child {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            line-height: 1.3;
+            color: #000000;
+            letter-spacing: -0.5px;
+        }
+
+        main p:nth-child(2) {
+            font-size: 1rem;
+            color: #666666;
+            line-height: 1.7;
+            margin-bottom: 30px;
+            font-weight: 400;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            transition: all 0.25s cubic-bezier(0.23, 1, 0.320, 1);
+            background: #f5f5f5;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #000000;
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+            background: white;
+        }
+
+        input::placeholder {
+            color: #999999;
+            font-weight: 400;
+        }
+
+        button {
+            width: 100%;
+            padding: 16px 16px;
+            margin-top: 8px;
+            margin-bottom: 20px;
+            background: #000000;
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            letter-spacing: 0.3px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f9f9f9 0%, #ffffff 100%);
+            border: 1.5px solid #e0e0e0;
+            border-radius: 14px;
+            font-size: 1rem;
+            line-height: 1.8;
+            min-height: 60px;
+            color: #333333;
+            font-weight: 500;
+            display: none;
+        }
+
+        #result.show {
+            display: block;
+            animation: slideIn 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        footer {
+            background: #ffffff;
+            padding: 30px 20px;
+            text-align: center;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            margin-top: 60px;
+            font-size: 0.85rem;
+            color: #9ca3af;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.04);
+        }
+
+        footer h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #666666;
+            letter-spacing: -0.2px;
+        }
+
+        aside {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+        }
+
+        aside.show {
+            display: block;
+            opacity: 1;
+        }
+
+        aside h2 {
+            text-align: center;
+            margin: 40px 0 30px 0;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #000000;
+            letter-spacing: -0.5px;
+        }
+
+        body {
+            background: radial-gradient(ellipse at 50% 0%, #fff 0%, #f5f5f7 68%);
+            color: #1d1d1f;
+        }
+
+        .app-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            min-height: 64px;
+            margin: 0;
+            padding: 8px max(22px, calc((100% - 1080px) / 2));
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            text-align: left;
+            background: rgba(255, 255, 255, 0.82);
+            border-bottom: 1px solid rgba(29, 29, 31, 0.08);
+            box-shadow: none;
+            backdrop-filter: blur(20px);
+        }
+
+        .app-brand {
+            color: #1d1d1f;
+            font-size: 19px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .app-title {
+            margin-right: auto;
+        }
+
+        .app-title h1 {
+            margin: 0;
+            color: #1d1d1f;
+            font-size: 18px;
+            font-weight: 650;
+            letter-spacing: 0;
+        }
+
+        .app-title p {
+            color: #6e6e73;
+            font-size: 12px;
+            line-height: 1.3;
+        }
+
+        .app-menu-toggle {
+            width: 40px;
+            height: 40px;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex: 0 0 40px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            color: #1d1d1f;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(29, 29, 31, 0.1);
+            border-radius: 50%;
+            box-shadow: none;
+        }
+
+        .app-menu-toggle:hover { transform: none; box-shadow: none; }
+        .app-menu-toggle span { width: 15px; height: 1.5px; border-radius: 2px; background: currentColor; transition: transform 180ms ease; }
+        .app-menu-toggle[aria-expanded="true"] span:first-child { transform: translateY(3.25px) rotate(45deg); }
+        .app-menu-toggle[aria-expanded="true"] span:last-child { transform: translateY(-3.25px) rotate(-45deg); }
+
+        .app-site-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: max(20px, calc((100% - 1080px) / 2));
+            min-width: 240px;
+            padding: 8px;
+            display: grid;
+            gap: 2px;
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(29, 29, 31, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 16px 40px rgba(29, 29, 31, 0.13);
+            backdrop-filter: blur(24px);
+        }
+
+        .app-site-menu[hidden] { display: none; }
+        .app-site-menu a { padding: 11px 12px; border-radius: 8px; color: #1d1d1f; font-size: 14px; text-decoration: none; }
+        .app-site-menu a:hover, .app-site-menu a:focus-visible { outline: none; background: #f5f5f7; }
+        .app-site-menu a[aria-current="page"] { color: #0071e3; }
+
+        .hero-section { background: linear-gradient(155deg, #fff 0%, #f5f5f7 100%); }
+        .cta-button, .offer-button, main button { background: #0071e3; border-radius: 8px; }
+        .feature-box, .offer-card, main { border-radius: 8px; }
+        .feature-box, .offer-card { box-shadow: 0 8px 28px rgba(29, 29, 31, 0.045); }
+        input:focus { border-color: #0071e3; box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.12); }
+
+        @media (max-width: 600px) {
+            .app-header { padding-inline: 18px; gap: 12px; }
+            .app-title p { display: none; }
+            .app-site-menu { right: 18px; }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="app-header">
+        <a class="app-brand" href="main.html">HUB</a>
+        <div class="app-title">
+            <h1>kacleFIT</h1>
+            <p>Your personal fitness & nutrition companion</p>
+        </div>
+        <button class="app-menu-toggle" id="app-menu-toggle" type="button" aria-label="Otwórz menu" aria-expanded="false" aria-controls="app-site-menu">
+            <span></span><span></span>
+        </button>
+        <nav class="app-site-menu" id="app-site-menu" aria-label="Menu główne" hidden>
+            <a href="main.html">Strona główna HUB</a>
+            <a href="kacleFIT.html" aria-current="page">kacleFIT</a>
+            <a href="licznik.html">Licznik treningu</a>
+            <a href="login.html">Mój profil</a>
+            <a href="#calculator">Kalkulator kalorii</a>
+            <a href="#offers-section">Plany treningowe</a>
+        </nav>
+    </header>
+    <section class="hero-section">
+        <h2>Transform Your Fitness Journey</h2>
+        <p>Calculate your daily calorie needs, discover personalized training plans, and achieve your health goals with kaclefit</p>
+        <button class="cta-button" onclick="document.querySelector('main').scrollIntoView({behavior: 'smooth'})">Get Started</button>
+    </section>
+
+    <div class="features-showcase">
+        <div class="feature-box">
+            <h3>📊 Accurate Calculations</h3>
+            <p>Get precise calorie requirements based on your personal data and activity level</p>
+        </div>
+        <div class="feature-box">
+            <h3>💪 Fitness Plans</h3>
+            <p>Choose from multiple training plans tailored to your specific goals</p>
+        </div>
+        <div class="feature-box">
+            <h3>📈 Track Progress</h3>
+            <p>Monitor your results and adjust your approach with advanced analytics</p>
+        </div>
+    </div>
+
+    <aside id="offers-section">
+        <h2 style="text-align: center; margin: 40px 0 30px 0; font-size: 2.2rem;">Training Plans</h2>
+        <div class="offers-grid">
+            <div class="offer-card">
+                <h3>Starter Plan</h3>
+                <div class="price">$9.99</div>
+                <div class="description">Monthly access</div>
+                <ul class="features">
+                    <li>Advanced BMR calculator</li>
+                    <li>Basic workout routines</li>
+                    <li>Food database (5,000+ items)</li>
+                    <li>Email support</li>
+                </ul>
+                <button class="offer-button">Choose Plan</button>
+            </div>
+
+            <div class="offer-card">
+                <h3>Premium Plan</h3>
+                <div class="price">$19.99</div>
+                <div class="description">Monthly access</div>
+                <ul class="features">
+                    <li>Everything in Starter</li>
+                    <li>Personalized workout plans</li>
+                    <li>Customized nutrition guides</li>
+                    <li>Progress tracking (detailed)</li>
+                    <li>24/7 priority support</li>
+                </ul>
+                <button class="offer-button">Choose Plan</button>
+            </div>
+
+            <div class="offer-card">
+                <h3>Elite Plan</h3>
+                <div class="price">$39.99</div>
+                <div class="description">3-month access</div>
+                <ul class="features">
+                    <li>Everything in Premium</li>
+                    <li>1-on-1 online coaching</li>
+                    <li>Custom meal plans</li>
+                    <li>Video tutorials library</li>
+                    <li>Weekly progress reviews</li>
+                    <li>15% renewal discount</li>
+                </ul>
+                <button class="offer-button">Choose Plan</button>
+            </div>
+        </div>
+    </aside>
+    <main id="calculator">
+        <p>Calculate Your Daily Calorie Needs</p>
+        <p>Our advanced BMR calculator determines your exact calorie requirements based on your personal metrics. Simply enter your weight and height to get started on your personalized fitness journey.</p>
+        <input type="number" placeholder="Weight (kg)" id="weight">
+        <input type="number" placeholder="Height (cm)" id="height">
+        <button onclick="calculateCalories()">Calculate Calorie Requirements</button>
+        <p id="result"></p>
+        <script>
+            function calculateCalories() {
+                const weight = document.getElementById('weight').value;
+                const height = document.getElementById('height').value;
+                const offersSection = document.getElementById('offers-section');
+
+                if (weight && height) {
+                    const bmr = 10 * weight + 6.25 * height - 5 * 25 + 5;
+            try {
+                const profile = JSON.parse(localStorage.getItem('hub-profile') || 'null');
+                if (profile) {
+                    if (profile.weight) document.getElementById('weight').value = profile.weight;
+                    if (profile.height) document.getElementById('height').value = profile.height;
+                    if (profile.name) {
+                        document.querySelector('.app-title p').textContent = `Cześć, ${profile.name}. Twój cel: ${profile.goal || 'sprawność'}.`;
+                    }
+                }
+            } catch (error) {
+                // Strona działa również bez dostępu do zapisanych danych.
+            }
+
+                    const calories = bmr * 1.2;
+                    const resultElement = document.getElementById('result');
+                    resultElement.innerText = `Your daily calorie requirement is approximately ${calories.toFixed(0)} kcal. This calculation is based on a light activity level. Adjust accordingly based on your actual lifestyle.`;
+                    resultElement.classList.add('show');
+                    offersSection.classList.add('show');
+                    setTimeout(() => {
+                        offersSection.scrollIntoView({ behavior: 'smooth' });
+                    }, 300);
+                } else {
+                    const resultElement = document.getElementById('result');
+                    resultElement.innerText = 'Please enter both your weight and height to calculate your calorie requirements.';
+                    resultElement.classList.add('show');
+                }
+            }
+
+            let offersSection = document.getElementById('offers-section');
+            const menuButton = document.getElementById('app-menu-toggle');
+            const siteMenu = document.getElementById('app-site-menu');
+
+            function setMenuOpen(isOpen) {
+                menuButton.setAttribute('aria-expanded', String(isOpen));
+                menuButton.setAttribute('aria-label', isOpen ? 'Zamknij menu' : 'Otwórz menu');
+                siteMenu.hidden = !isOpen;
+            }
+
+            menuButton.addEventListener('click', () => {
+                setMenuOpen(menuButton.getAttribute('aria-expanded') !== 'true');
+            });
+
+            document.addEventListener('click', (event) => {
+                if (!event.target.closest('.app-header')) setMenuOpen(false);
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    setMenuOpen(false);
+                    menuButton.focus();
+                }
+            });
+
+            siteMenu.addEventListener('click', (event) => {
+                const link = event.target.closest('a');
+                if (!link) return;
+                if (link.hash === '#offers-section') {
+                    event.preventDefault();
+                    offersSection.classList.add('show');
+                    setTimeout(() => offersSection.scrollIntoView({ behavior: 'smooth' }), 300);
+                } else if (link.hash === '#calculator') {
+                    event.preventDefault();
+                    document.querySelector('main').scrollIntoView({ behavior: 'smooth' });
+                }
+                setMenuOpen(false);
+            });
+        </script>
+    </main>
+    <footer>
+        <h3>kaclefit - Your Smart Fitness & Nutrition Companion</h3>
+    </footer>
+</body>
+
+</html>
