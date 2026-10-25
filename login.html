@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f5f5f7">
+    <title>Twój profil | HUB</title>
+    <style>
+        :root {
+            color-scheme: light;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+            color: #1d1d1f;
+            background: #f5f5f7;
+            --blue: #0071e3;
+            --muted: #6e6e73;
+            --line: rgba(29, 29, 31, 0.11);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            min-height: 100svh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            background: radial-gradient(ellipse at 50% 0%, #fff 0%, #f5f5f7 72%);
+        }
+
+        .topbar {
+            min-height: 64px;
+            padding: 0 max(22px, calc((100% - 1080px) / 2));
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(29, 29, 31, 0.07);
+            background: rgba(255, 255, 255, 0.78);
+            backdrop-filter: blur(20px);
+        }
+
+        .brand { color: inherit; font-size: 19px; font-weight: 700; text-decoration: none; }
+
+        main {
+            width: min(100% - 40px, 560px);
+            margin: auto;
+            padding: 72px 0;
+        }
+
+        .eyebrow { margin: 0 0 12px; color: var(--blue); font-size: 13px; font-weight: 650; }
+        h1 { margin: 0; font-size: clamp(38px, 8vw, 58px); line-height: 1.04; font-weight: 650; }
+        .intro { margin: 18px 0 32px; color: var(--muted); font-size: 17px; line-height: 1.55; }
+
+        form, .welcome-panel {
+            padding: 26px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.84);
+            box-shadow: 0 12px 36px rgba(29, 29, 31, 0.05);
+        }
+
+        .field { display: grid; gap: 8px; margin-bottom: 18px; }
+        label { font-size: 13px; font-weight: 600; }
+        input, select {
+            width: 100%;
+            min-height: 48px;
+            padding: 0 14px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #fff;
+            color: inherit;
+            font: inherit;
+            font-size: 15px;
+        }
+
+        input:focus, select:focus { outline: 2px solid rgba(0, 113, 227, 0.28); border-color: var(--blue); }
+        .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .hint { margin: -4px 0 18px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+
+        button, .tool-link {
+            min-height: 48px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 18px;
+            border: 0;
+            border-radius: 8px;
+            background: var(--blue);
+            color: #fff;
+            font: inherit;
+            font-size: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        form button { width: 100%; }
+        .welcome-panel { display: none; }
+        .welcome-panel.visible { display: block; animation: appear 240ms ease-out both; }
+        .welcome-panel h2 { margin: 0; font-size: 30px; line-height: 1.15; }
+        .welcome-panel p { margin: 12px 0 22px; color: var(--muted); line-height: 1.55; }
+        .profile-summary { margin: 0 0 22px; padding: 16px; border-radius: 8px; background: #f5f5f7; color: #424245; font-size: 14px; line-height: 1.7; }
+        .tool-links { display: flex; flex-wrap: wrap; gap: 10px; }
+        .tool-link.secondary { border: 1px solid var(--line); background: #fff; color: var(--blue); }
+        .edit-button { margin-top: 18px; padding: 0; min-height: 36px; background: transparent; color: var(--blue); font-size: 14px; }
+        footer { padding: 20px; color: var(--muted); text-align: center; font-size: 12px; }
+
+        @keyframes appear { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 520px) {
+            main { padding: 52px 0; }
+            form, .welcome-panel { padding: 20px; }
+            .field-row { gap: 10px; }
+            .tool-links { display: grid; }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <p class="eyebrow">TWÓJ HUB</p>
+        <h1 id="page-title">Zacznijmy od Ciebie.</h1>
+        <p class="intro">Podaj kilka informacji, a przygotuję dla Ciebie wygodniejszy start.</p>
+
+        <form id="profile-form">
+            <div class="field">
+                <label for="profile-name">Jak masz na imię?</label>
+                <input id="profile-name" name="name" type="text" autocomplete="given-name" maxlength="40" placeholder="Np. Kacper" required>
+            </div>
+            <div class="field">
+                <label for="profile-goal">Jaki jest Twój cel?</label>
+                <select id="profile-goal" name="goal">
+                    <option value="sprawność">Poprawić sprawność</option>
+                    <option value="masa">Zbudować masę mięśniową</option>
+                    <option value="redukcja">Zadbać o redukcję</option>
+                    <option value="nawyki">Wypracować regularne nawyki</option>
+                </select>
+            </div>
+            <div class="field-row">
+                <div class="field">
+                    <label for="profile-weight">Waga (kg)</label>
+                    <input id="profile-weight" name="weight" type="number" min="1" max="500" step="0.1" inputmode="decimal" placeholder="Opcjonalnie">
+                </div>
+                <div class="field">
+                    <label for="profile-height">Wzrost (cm)</label>
+                    <input id="profile-height" name="height" type="number" min="1" max="300" step="1" inputmode="numeric" placeholder="Opcjonalnie">
+                </div>
+            </div>
+            <p class="hint">Imię i preferencje są zapisywane tylko w tej przeglądarce. Waga i wzrost są opcjonalne.</p>
+            <button type="submit">Zapisz i przejdź dalej</button>
+        </form>
+
+        <section class="welcome-panel" id="welcome-panel" aria-live="polite">
+            <h2 id="welcome-heading"></h2>
+            <p id="welcome-copy"></p>
+            <div class="profile-summary" id="profile-summary"></div>
+            <nav class="tool-links" aria-label="Twoje narzędzia">
+                <a class="tool-link" href="main.html">Przejdź do HUB-a</a>
+                <a class="tool-link secondary" href="kacleFIT.html">Otwórz kacleFIT</a>
+                <a class="tool-link secondary" href="licznik.html">Otwórz licznik</a>
+            </nav>
+            <button class="edit-button" id="edit-profile" type="button">Edytuj dane</button>
+        </section>
+    </main>
+    <footer>Dane profilu pozostają na tym urządzeniu.</footer>
+    <script>
+        const profileKey = "hub-profile";
+        const profileForm = document.querySelector("#profile-form");
+        const welcomePanel = document.querySelector("#welcome-panel");
+
+        function readProfile() {
+            try {
+                return JSON.parse(localStorage.getItem(profileKey) || "null");
+            } catch {
+                return null;
+            }
+        }
+
+        function showWelcome(profile) {
+            document.querySelector("#welcome-heading").textContent = `Miło Cię widzieć, ${profile.name}.`;
+            document.querySelector("#welcome-copy").textContent = `Twój cel: ${profile.goal}. Możesz zmienić te informacje w dowolnym momencie.`;
+            const details = [];
+            if (profile.weight) details.push(`Waga: ${profile.weight} kg`);
+            if (profile.height) details.push(`Wzrost: ${profile.height} cm`);
+            document.querySelector("#profile-summary").textContent = details.length ? details.join(" · ") : "Nie zapisano jeszcze wagi ani wzrostu.";
+            profileForm.hidden = true;
+            welcomePanel.classList.add("visible");
+            document.querySelector("#page-title").textContent = "Witaj z powrotem.";
+        }
+
+        const savedProfile = readProfile();
+        if (savedProfile && savedProfile.name) {
+            profileForm.elements.name.value = savedProfile.name;
+            profileForm.elements.goal.value = savedProfile.goal || "sprawność";
+            profileForm.elements.weight.value = savedProfile.weight || "";
+            profileForm.elements.height.value = savedProfile.height || "";
+            showWelcome(savedProfile);
+        }
+
+        profileForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+            const profile = {
+                name: profileForm.elements.name.value.trim(),
+                goal: profileForm.elements.goal.value,
+                weight: profileForm.elements.weight.value,
+                height: profileForm.elements.height.value
+            };
+            if (!profile.name) return;
+            try {
+                localStorage.setItem(profileKey, JSON.stringify(profile));
+            } catch {
+                document.querySelector("#welcome-copy").textContent = "Nie udało się zapisać danych w przeglądarce. Możesz nadal korzystać z HUB-a.";
+            }
+            showWelcome(profile);
+        });
+
+        document.querySelector("#edit-profile").addEventListener("click", () => {
+            welcomePanel.classList.remove("visible");
+            profileForm.hidden = false;
+            document.querySelector("#page-title").textContent = "Zaktualizuj swój profil.";
+            profileForm.elements.name.focus();
+        });
+    </script>
+</body>
+</html>
